@@ -1,0 +1,24 @@
+---
+description: Gemini API 모델 — gemini-2.0-flash 또는 gemini-2.5-flash 및 VITE_GEMINI_MODEL
+alwaysApply: true
+---
+
+# Google Gemini API — model ID
+
+이 프로젝트에서 **Google Gemini API**를 호출할 때 허용되는 모델은 다음뿐이다.
+
+- `gemini-2.0-flash`
+- `gemini-2.5-flash`
+
+환경 변수 `VITE_GEMINI_MODEL`로 위 중 하나를 지정한다. 값이 없거나 비어 있으면 코드 기본값은 `gemini-2.5-flash`이다.
+
+```typescript
+// 예: @google/generative-ai — 모델명은 env 또는 위 허용 목록만
+const name =
+  import.meta.env.VITE_GEMINI_MODEL?.trim() === "gemini-2.0-flash"
+    ? "gemini-2.0-flash"
+    : "gemini-2.5-flash";
+const model = genAI.getGenerativeModel({ model: name });
+```
+
+허용 목록에 없는 모델 ID(예: `gemini-1.5-pro`, `gemini-pro`)는 사용하지 않는다.
