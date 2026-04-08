@@ -1,2 +1,5 @@
-{}
-
+{
+  "name": "ai-quiz-platform",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
+}

@@ -16,6 +16,7 @@ import {
 import type {
   AttemptDoc,
   QuestionDoc,
+  QuestionAttemptDoc,
   QuizQuestionPayload,
   RoomDoc,
   RoomStatus,
@@ -159,6 +160,47 @@ export async function addAttempt(params: {
     },
     { merge: true },
   );
+}
+
+export async function addQuestionAttempt(params: {
+  roomId: string;
+  uid: string;
+  questionId: string;
+  questionOrder: number;
+  selectedChoiceIndex: 0 | 1 | 2 | 3 | null;
+  isCorrect: boolean;
+}): Promise<void> {
+  const { roomId, uid, questionId, questionOrder, selectedChoiceIndex, isCorrect } = params;
+  const db = getDb();
+  const questionAttemptRef = doc(
+    db,
+    "rooms",
+    roomId,
+    "attempts",
+    uid,
+    "questionAttempts",
+    questionId,
+  );
+  await setDoc(questionAttemptRef, {
+    questionId,
+    questionOrder,
+    selectedChoiceIndex,
+    isCorrect,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function fetchQuestionAttempts(
+  roomId: string,
+  uid: string,
+): Promise<Array<{ id: string; data: QuestionAttemptDoc }>> {
+  const db = getDb();
+  const q = query(
+    collection(db, "rooms", roomId, "attempts", uid, "questionAttempts"),
+    orderBy("questionOrder", "asc"),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, data: d.data() as QuestionAttemptDoc }));
 }
 
 export function subscribeLeaderboard(

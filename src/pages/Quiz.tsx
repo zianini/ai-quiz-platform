@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { addAttempt, fetchQuestions, fetchRoom } from "../lib/firestoreRooms";
+import { addAttempt, addQuestionAttempt, fetchQuestions, fetchRoom } from "../lib/firestoreRooms";
 import type { QuestionDoc } from "../types";
 import { useAuth } from "../context/AuthContext";
 import { readStoredNickname } from "./Join";
@@ -77,10 +77,30 @@ export function Quiz() {
         return;
       }
       let score = 0;
+      const attempts: Array<{
+        roomId: string;
+        uid: string;
+        questionId: string;
+        questionOrder: number;
+        selectedChoiceIndex: 0 | 1 | 2 | 3 | null;
+        isCorrect: boolean;
+      }> = [];
       questions.forEach((q, i) => {
-        if (answers[i] === q.data.correctIndex) score += 1;
+        const selectedIndex = answers[i];
+        const isCorrect = selectedIndex === q.data.correctIndex;
+        if (isCorrect) score += 1;
+        attempts.push({
+          roomId,
+          uid: user.uid,
+          questionId: q.id,
+          questionOrder: i,
+          selectedChoiceIndex: selectedIndex as 0 | 1 | 2 | 3 | null,
+          isCorrect,
+        });
       });
       const total = questions.length;
+      
+      // 전체 시도 저장
       await addAttempt({
         roomId,
         nickname: nick,
@@ -88,6 +108,12 @@ export function Quiz() {
         score,
         total,
       });
+
+      // 각 문제별 시도 저장
+      for (const attempt of attempts) {
+        await addQuestionAttempt(attempt);
+      }
+
       setSubmitted({ score, total });
     } catch (err) {
       setError(err instanceof Error ? err.message : "제출에 실패했습니다.");

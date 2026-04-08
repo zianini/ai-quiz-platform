@@ -27,6 +27,14 @@ export interface AttemptDoc {
   createdAt: Timestamp;
 }
 
+export interface QuestionAttemptDoc {
+  questionId: string;
+  questionOrder: number;
+  selectedChoiceIndex: 0 | 1 | 2 | 3 | null;
+  isCorrect: boolean;
+  createdAt: Timestamp;
+}
+
 export interface UserProfileDoc {
   nickname: string;
   updatedAt: Timestamp;
